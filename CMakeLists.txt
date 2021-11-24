@@ -53,15 +53,13 @@ else ()
 endif ()
 
 # Options
-option(BUILD_SHARED_LIBS "Build shared library" ON)
+option(VGPU_BUILD_SHARED "Build vgpu as a shared library" ON)
 option(VGPU_BUILD_ENABLE_CODE_ANALYSIS "Use Static Code Analysis on build" OFF)
 option(VGPU_SAMPLES "Build samples" ON)
 
-# Root and build dir.
-set(VGPU_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(VGPU_THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
-mark_as_advanced(VGPU_ROOT_DIR)
-mark_as_advanced(VGPU_THIRD_PARTY_DIR)
+if (VGPU_BUILD_SHARED)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -170,7 +168,7 @@ else ()
 endif ()
 
 # ThirdParty
-#add_subdirectory(third_party)
+add_subdirectory(third_party)
 
 # Source lists
 add_library(vgpu
@@ -180,6 +178,8 @@ add_library(vgpu
 	src/vgpu_driver.h
     # Source Files
 	src/vgpu.c
+    src/vgpu_driver_vulkan.cpp
+    src/vgpu_driver_d3d12.cpp
 )
 
 target_include_directories(vgpu PUBLIC
@@ -188,6 +188,23 @@ target_include_directories(vgpu PUBLIC
     $<INSTALL_INTERFACE:${INSTALL_BASE_INCLUDE_DIR}>
 )
 
+if (VGPU_BUILD_SHARED)
+    target_compile_definitions(vgpu PRIVATE VGPU_SHARED_LIBRARY_BUILD=1)
+endif()
+
+if(WIN32 AND NOT DISABLE_D3D12)
+    target_compile_definitions(vgpu PRIVATE VGPU_DRIVER_D3D12=1)
+endif()
+
+if(NOT EMSCRIPTEN)
+    target_compile_definitions(vgpu PRIVATE VGPU_DRIVER_VULKAN=1)
+    target_link_libraries(vgpu PRIVATE volk vma spirv-reflect)
+endif()
+
+if (VGPU_SAMPLES)
+    add_subdirectory(samples)
+endif ()
+
 # Print current build configuration
 message(STATUS "VGPU version ${VGPU_VERSION}")
 message(STATUS "GIT Revision ID: ${VGPU_REVISION_ID}")
@@ -195,14 +212,11 @@ message(STATUS "GIT Short ChangeSet: ${VGPU_SHORT_CHANGE_SET}")
 message(STATUS "GIT ChangeSet: ${VGPU_CHANGE_SET}")
 message(STATUS "GIT ChangeSet Date: ${VGPU_CHANGE_SET_DATE}")
 
-if (BUILD_SHARED_LIBS)
+if (VGPU_BUILD_SHARED)
     message(STATUS "  Library         SHARED")
 else ()
     message(STATUS "  Library         STATIC")
 endif ()
-
-#message(STATUS "  Direct3D12 (ALIMER_RHI_D3D12):  " ${ALIMER_RHI_D3D12})
-#message(STATUS "  Vulkan (ALIMER_RHI_VULKAN):  " ${ALIMER_RHI_VULKAN})
 
 message(STATUS "  Samples         ${VGPU_SAMPLES}")
 
