@@ -54,7 +54,6 @@ endif ()
 
 # Options
 option(VGPU_BUILD_SHARED "Build vgpu as a shared library" ON)
-option(VGPU_BUILD_ENABLE_CODE_ANALYSIS "Use Static Code Analysis on build" OFF)
 option(VGPU_SAMPLES "Build samples" ON)
 
 if (VGPU_BUILD_SHARED)
@@ -200,6 +199,18 @@ if(NOT EMSCRIPTEN)
     target_compile_definitions(vgpu PRIVATE VGPU_DRIVER_VULKAN=1)
     target_link_libraries(vgpu PRIVATE volk vma spirv-reflect)
 endif()
+
+# Compiler-specific setup
+if(MSVC)
+    # Set warning level
+    target_compile_options(vgpu PRIVATE $<$<CONFIG:DEBUG>:/W3> $<$<NOT:$<CONFIG:DEBUG>>:/W4>)
+
+    # Warnings as Errors Enabled
+    target_compile_options(vgpu PRIVATE /WX)
+
+    target_compile_options(vgpu PRIVATE /fp:fast)
+    target_compile_options(vgpu PRIVATE /permissive- /JMC- /Zc:__cplusplus)
+endif ()
 
 if (VGPU_SAMPLES)
     add_subdirectory(samples)

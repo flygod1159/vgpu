@@ -11,14 +11,14 @@ const char* kAppName = "00 - Hello World";
 const uint32_t kWindowWidth = 1280;
 const uint32_t kWindowHeight = 720;
 
-vgpu_device gpu_device = NULL;
+VGPUDevice gpu_device = NULL;
 
 static void app_glfw_error(int error, const char* description)
 {
     //LOG("Error " << error << ":" << description);
 }
 
-static void vgpu_log_callback(VGPULogType type, const char* msg)
+static void vgpu_log_callback(VGPU_LogType type, const char* msg)
 {
     switch (type)
     {
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
     vgpu_buffer_desc buffer_desc;
     buffer_desc.size = 64;
-    vgpu_buffer buffer = vgpuCreateBuffer(gpu_device, &buffer_desc, NULL);
+    VGPUBuffer buffer = vgpuCreateBuffer(gpu_device, &buffer_desc, NULL);
 
     while (!glfwWindowShouldClose(window))
     {

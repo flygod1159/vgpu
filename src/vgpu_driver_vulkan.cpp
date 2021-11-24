@@ -217,9 +217,6 @@ namespace
             else if (strcmp(vk_extensions[i].extensionName, VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME) == 0) {
                 extensions.EXT_conditional_rendering = true;
             }
-            else if (strcmp(vk_extensions[i].extensionName, VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME) == 0) {
-                extensions.win32_full_screen_exclusive = true;
-            }
             else if (strcmp(vk_extensions[i].extensionName, VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME) == 0) {
                 extensions.vertex_attribute_divisor = true;
             }
@@ -235,6 +232,11 @@ namespace
             else if (strcmp(vk_extensions[i].extensionName, VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME) == 0) {
                 extensions.dynamic_rendering = true;
             }
+#if defined(_WIN32)
+            else if (strcmp(vk_extensions[i].extensionName, VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME) == 0) {
+                extensions.win32_full_screen_exclusive = true;
+            }
+#endif
         }
 
         VkPhysicalDeviceProperties gpuProps;
@@ -308,9 +310,11 @@ typedef struct vulkan_renderer
     VkQueue computeQueue = VK_NULL_HANDLE;
     VkQueue copyQueue = VK_NULL_HANDLE;
     VmaAllocator allocator = VK_NULL_HANDLE;
+
+    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
 } vulkan_renderer;
 
-static void vulkan_destroy(vgpu_device device)
+static void vulkan_destroy(VGPUDevice device)
 {
     vulkan_renderer* renderer = (vulkan_renderer*)device->driverData;
 
@@ -330,12 +334,12 @@ static void vulkan_destroy(vgpu_device device)
         renderer->allocator = VK_NULL_HANDLE;
     }
 
-    //if (pipelineCache != VK_NULL_HANDLE)
-    //{
-    //    // Destroy Vulkan pipeline cache 
-    //    vkDestroyPipelineCache(vk.device, pipelineCache, nullptr);
-    //    pipelineCache = VK_NULL_HANDLE;
-    //}
+    if (renderer->pipelineCache != VK_NULL_HANDLE)
+    {
+        // Destroy Vulkan pipeline cache 
+        vkDestroyPipelineCache(renderer->device, renderer->pipelineCache, nullptr);
+        renderer->pipelineCache = VK_NULL_HANDLE;
+    }
 
     if (renderer->device != VK_NULL_HANDLE)
     {
@@ -357,12 +361,12 @@ static void vulkan_destroy(vgpu_device device)
     //VGPU_FREE(device);
 }
 
-static vgpu_buffer vulkan_createBuffer(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData)
+static VGPUBuffer vulkan_createBuffer(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData)
 {
     return NULL;
 }
 
-static void vulkan_destroyBuffer(vgpu_renderer* driverData, vgpu_buffer buffer)
+static void vulkan_destroyBuffer(vgpu_renderer* driverData, VGPUBuffer buffer)
 {
 }
 
@@ -384,7 +388,7 @@ static bool vulkanIsAvailable(void)
     return true;
 }
 
-static vgpu_device vulkanCreateDevice(VGPUValidationMode validationMode)
+static VGPUDevice vulkanCreateDevice(VGPU_ValidationMode validationMode)
 {
     if (!vulkanIsAvailable())
     {
@@ -933,7 +937,13 @@ static vgpu_device vulkanCreateDevice(VGPUValidationMode validationMode)
         }
     }
 
-    vgpu_device_t* device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device));
+    // Create Vulkan pipeline cache.
+    {
+        VkPipelineCacheCreateInfo createInfo{ VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO };
+        VK_CHECK(vkCreatePipelineCache(renderer->device, &createInfo, nullptr, &renderer->pipelineCache));
+    }
+
+    VGPUDevice device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device_t));
     ASSIGN_DRIVER(vulkan);
 
     renderer->parent_device = device;

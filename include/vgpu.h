@@ -36,28 +36,28 @@
 #   define VGPU_API_CALL
 #endif
 
-typedef struct vgpu_device_t* vgpu_device;
-typedef struct vgpu_texture_t* vgpu_texture;
-typedef struct vgpu_buffer_t* vgpu_buffer;
+typedef struct vgpu_device_t* VGPUDevice;
+typedef struct VGPUTextureImpl* VGPUTexture;
+typedef struct VGPUBufferImpl* VGPUBuffer;
 
-typedef enum VGPULogType {
+typedef enum VGPU_LogType {
     VGPU_LOG_TYPE_INFO = 0,
     VGPU_LOG_TYPE_WARN,
     VGPU_LOG_TYPE_DEBUG,
     VGPU_LOG_TYPE_ERROR,
     _VGPU_LOG_TYPE_FORCE_U32 = 0x7FFFFFFF
-} VGPULogType;
+} VGPU_LogType;
 
-typedef enum vgpu_backend {
+typedef enum VGPU_Backend {
     _VGPU_BACKEND_DEFAULT,
     VGPU_BACKEND_VULKAN,
     VGPU_BACKEND_D3D12,
 
     _VGPU_BACKEND_NUM,
     _VGPU_BACKEND_FORCE_U32 = 0x7FFFFFFF
-} vgpu_backend;
+} VGPU_Backend;
 
-typedef enum VGPUValidationMode {
+typedef enum VGPU_ValidationMode {
     /// No validation is enabled.
     VGPU_VALIDATION_MODE_DISABLED,
     /// Print warnings and errors
@@ -67,20 +67,20 @@ typedef enum VGPUValidationMode {
     /// Enable GPU-based validation
     VGPU_VALIDATION_MODE_GPU,
     _VGPU_VALIDATION_MODE_FORCE_U32 = 0x7FFFFFFF
-} VGPUValidationMode;
+} VGPU_ValidationMode;
 
 typedef struct vgpu_buffer_desc {
     uint64_t size;
 } vgpu_buffer_desc;
 
-typedef void (VGPU_API_CALL* vgpuLogFunc)(VGPULogType type, const char* msg);
+typedef void (VGPU_API_CALL* vgpuLogFunc)(VGPU_LogType type, const char* msg);
 VGPU_API void VGPU_SetLogCallback(vgpuLogFunc func);
 
-VGPU_API vgpu_device vgpuCreateDevice(VGPUValidationMode validationMode);
-VGPU_API void vgpuDestroyDevice(vgpu_device device);
+VGPU_API VGPUDevice vgpuCreateDevice(VGPU_ValidationMode validationMode);
+VGPU_API void vgpuDestroyDevice(VGPUDevice device);
 
-VGPU_API vgpu_buffer vgpuCreateBuffer(vgpu_device device, const vgpu_buffer_desc* desc, const void* initialData);
-VGPU_API void vgpuDestroyBuffer(vgpu_device device, vgpu_buffer buffer);
+VGPU_API VGPUBuffer vgpuCreateBuffer(VGPUDevice device, const vgpu_buffer_desc* desc, const void* initialData);
+VGPU_API void vgpuDestroyBuffer(VGPUDevice device, VGPUBuffer buffer);
 
 
 #endif /* VGPU_H */

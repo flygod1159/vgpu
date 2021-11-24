@@ -33,16 +33,16 @@ typedef struct d3d12_renderer
     IDXGIFactory4* factory;
 } d3d12_renderer;
 
-static void d3d12_destroy(vgpu_device device)
+static void d3d12_destroy(VGPUDevice device)
 {
 }
 
-static vgpu_buffer d3d12_createBuffer(vgpu_renderer* driver_data, const vgpu_buffer_desc* desc, const void* initData)
+static VGPUBuffer d3d12_createBuffer(vgpu_renderer* driver_data, const vgpu_buffer_desc* desc, const void* initData)
 {
     return NULL;
 }
 
-static void d3d12_destroyBuffer(vgpu_renderer* driver_data, vgpu_buffer buffer)
+static void d3d12_destroyBuffer(vgpu_renderer* driver_data, VGPUBuffer buffer)
 {
 }
 
@@ -52,12 +52,12 @@ static bool d3d12IsAvailable(void)
     return true;
 }
 
-static vgpu_device d3d12CreateDevice(VGPUValidationMode validationMode)
+static VGPUDevice d3d12CreateDevice(VGPU_ValidationMode validationMode)
 {
     if (!d3d12IsAvailable())
         return NULL;
 
-    vgpu_device device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device));
+    VGPUDevice device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device_t));
     ASSIGN_DRIVER(d3d12);
 
     d3d12_renderer* renderer = (d3d12_renderer*)VGPU_MALLOC(sizeof(d3d12_renderer));

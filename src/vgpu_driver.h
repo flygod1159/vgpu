@@ -26,10 +26,10 @@ _VGPU_EXTERN void VGPU_LogError(const char* fmt, ...);
 typedef struct vgpu_renderer vgpu_renderer;
 
 struct vgpu_device_t {
-    void (*destroy)(vgpu_device device);
+    void (*destroy)(VGPUDevice device);
 
-    vgpu_buffer(*createBuffer)(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData);
-    void (*destroyBuffer)(vgpu_renderer* driverData, vgpu_buffer buffer);
+    VGPUBuffer(*createBuffer)(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData);
+    void (*destroyBuffer)(vgpu_renderer* driverData, VGPUBuffer buffer);
 
     /* Opaque pointer for the driver */
     vgpu_renderer* driverData;
@@ -37,9 +37,9 @@ struct vgpu_device_t {
 
 typedef struct vgpu_driver
 {
-    vgpu_backend backend;
+    VGPU_Backend backend;
     bool(*isAvailable)(void);
-    vgpu_device(*createDevice)(VGPUValidationMode validationMode);
+    VGPUDevice(*createDevice)(VGPU_ValidationMode validationMode);
 } vgpu_driver;
 
 #define ASSIGN_DRIVER_FUNC(func, name) \

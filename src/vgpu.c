@@ -66,7 +66,7 @@ static const vgpu_driver* drivers[] = {
     NULL
 };
 
-vgpu_device vgpuCreateDevice(VGPUValidationMode validationMode)
+VGPUDevice vgpuCreateDevice(VGPU_ValidationMode validationMode)
 {
     for (int i = 0; drivers[i] != NULL; i += 1)
     {
@@ -76,7 +76,7 @@ vgpu_device vgpuCreateDevice(VGPUValidationMode validationMode)
     return drivers[1]->createDevice(validationMode);
 }
 
-void vgpuDestroyDevice(vgpu_device device)
+void vgpuDestroyDevice(VGPUDevice device)
 {
     if (device == NULL)
     {
@@ -86,7 +86,7 @@ void vgpuDestroyDevice(vgpu_device device)
     device->destroy(device);
 }
 
-vgpu_buffer vgpuCreateBuffer(vgpu_device device, const vgpu_buffer_desc* desc, const void* initialData)
+VGPUBuffer vgpuCreateBuffer(VGPUDevice device, const vgpu_buffer_desc* desc, const void* initialData)
 {
     if (device == NULL)
     {
@@ -96,7 +96,7 @@ vgpu_buffer vgpuCreateBuffer(vgpu_device device, const vgpu_buffer_desc* desc, c
     return device->createBuffer(device->driverData, desc, initialData);
 }
 
-void vgpuDestroyBuffer(vgpu_device device, vgpu_buffer buffer)
+void vgpuDestroyBuffer(VGPUDevice device, VGPUBuffer buffer)
 {
     if (device == NULL || buffer == NULL)
     {
