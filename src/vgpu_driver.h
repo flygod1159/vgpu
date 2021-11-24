@@ -19,20 +19,45 @@
 #   define VGPU_FREE(p) free(p)
 #endif
 
+#define VGPU_STATIC_ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define VGPU_UNUSED(x) ((void) x)
+
+#if defined(__clang__)
+#define VGPU_DISABLE_WARNINGS() \
+    _Pragma("clang diagnostic push")\
+	_Pragma("clang diagnostic ignored \"-Wall\"") \
+	_Pragma("clang diagnostic ignored \"-Wextra\"") \
+	_Pragma("clang diagnostic ignored \"-Wtautological-compare\"")
+
+#define VGPU_ENABLE_WARNINGS() \
+	_Pragma("clang diagnostic pop")
+#elif defined(__GNUC__) || defined(__GNUG__)
+#	define VGPU_DISABLE_WARNINGS() \
+	_Pragma("GCC diagnostic push") \
+	_Pragma("GCC diagnostic ignored \"-Wall\"") \
+	_Pragma("clang diagnostic ignored \"-Wextra\"") \
+	_Pragma("clang diagnostic ignored \"-Wtautological-compare\"")
+
+#define VGPU_ENABLE_WARNINGS() _Pragma("GCC diagnostic pop")
+#elif defined(_MSC_VER)
+#   define VGPU_DISABLE_WARNINGS() __pragma(warning(push, 0))
+#   define VGPU_ENABLE_WARNINGS()  __pragma(warning(pop))
+#endif
+
 _VGPU_EXTERN void VGPU_LogInfo(const char* fmt, ...);
 _VGPU_EXTERN void VGPU_LogWarn(const char* fmt, ...);
 _VGPU_EXTERN void VGPU_LogError(const char* fmt, ...);
 
-typedef struct vgpu_renderer vgpu_renderer;
+typedef struct VGPU_Renderer VGPU_Renderer;
 
 struct vgpu_device_t {
     void (*destroy)(VGPUDevice device);
 
-    VGPUBuffer(*createBuffer)(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData);
-    void (*destroyBuffer)(vgpu_renderer* driverData, VGPUBuffer buffer);
+    VGPUBuffer(*createBuffer)(VGPU_Renderer* driverData, const vgpu_buffer_desc* desc, const void* initData);
+    void (*destroyBuffer)(VGPU_Renderer* driverData, VGPUBuffer buffer);
 
     /* Opaque pointer for the driver */
-    vgpu_renderer* driverData;
+    VGPU_Renderer* driverData;
 };
 
 typedef struct vgpu_driver

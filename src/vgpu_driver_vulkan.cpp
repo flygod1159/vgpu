@@ -4,9 +4,11 @@
 #if VGPU_DRIVER_VULKAN
 #include "vgpu_driver.h"
 #include "volk.h"
+VGPU_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include "spirv_reflect.h"
+VGPU_ENABLE_WARNINGS()
 
 /// Helper macro to test the result of Vulkan calls which can return an error.
 #define VK_CHECK(x) \
@@ -65,7 +67,7 @@ namespace
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData)
     {
-        //ALIMER_UNUSED(pUserData);
+        VGPU_UNUSED(pUserData);
 
         std::string messageTypeStr = "General";
 
@@ -269,7 +271,7 @@ namespace
 /* Device */
 typedef struct vulkan_renderer
 {
-    vgpu_device_t* parent_device;
+    vgpu_device_t* parentDevice;
 
     bool debugUtils;
     VkInstance instance;
@@ -361,13 +363,19 @@ static void vulkan_destroy(VGPUDevice device)
     //VGPU_FREE(device);
 }
 
-static VGPUBuffer vulkan_createBuffer(vgpu_renderer* driverData, const vgpu_buffer_desc* desc, const void* initData)
+static VGPUBuffer vulkan_createBuffer(VGPU_Renderer* driverData, const vgpu_buffer_desc* desc, const void* initData)
 {
+    VGPU_UNUSED(driverData);
+    VGPU_UNUSED(desc);
+    VGPU_UNUSED(initData);
+
     return NULL;
 }
 
-static void vulkan_destroyBuffer(vgpu_renderer* driverData, VGPUBuffer buffer)
+static void vulkan_destroyBuffer(VGPU_Renderer* driverData, VGPUBuffer buffer)
 {
+    VGPU_UNUSED(driverData);
+    VGPU_UNUSED(buffer);
 }
 
 /* Driver */
@@ -946,8 +954,8 @@ static VGPUDevice vulkanCreateDevice(VGPU_ValidationMode validationMode)
     VGPUDevice device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device_t));
     ASSIGN_DRIVER(vulkan);
 
-    renderer->parent_device = device;
-    device->driverData = (vgpu_renderer*)renderer;
+    renderer->parentDevice = device;
+    device->driverData = (VGPU_Renderer*)renderer;
 
     return device;
 }
