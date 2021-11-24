@@ -43,3 +43,9 @@ jobs:
       # Build the whole project with Ninja (which is spawn by CMake).          
       - name: Build
         run: cmake --build "${{ env.CMAKE_BUILD_DIR }}" --target install
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: '${{matrix.os}} SDK'
+          path: ${{ github.workspace }}/SDK          

@@ -52,14 +52,16 @@ else ()
     )
 endif ()
 
+# Options
+option(BUILD_SHARED_LIBS "Build shared library" ON)
+option(VGPU_BUILD_ENABLE_CODE_ANALYSIS "Use Static Code Analysis on build" OFF)
+option(VGPU_SAMPLES "Build samples" ON)
+
 # Root and build dir.
 set(VGPU_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(VGPU_THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 mark_as_advanced(VGPU_ROOT_DIR)
 mark_as_advanced(VGPU_THIRD_PARTY_DIR)
-
-# Configure CMake global variables
-set(CMAKE_INSTALL_MESSAGE LAZY)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -152,18 +154,6 @@ if( CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_CONFIGURATION_TYPES MATCHES "Debug;D
 	mark_as_advanced(FORCE CMAKE_RC_FLAGS_DEV)
 endif()
 
-# Options
-option(VGPU_BUILD_SHARED "Build engine as shared library" ON)
-option(VGPU_BUILD_ENABLE_CODE_ANALYSIS "Use Static Code Analysis on build" OFF)
-option(VGPU_SAMPLES "Build samples" ON)
-
-if (IOS OR EMSCRIPTEN)
-    set(VGPU_BUILD_SHARED OFF CACHE BOOL "Always Disable shared library on (IOS, WEB)" FORCE)
-elseif(ANDROID)
-    set(VGPU_BUILD_SHARED ON CACHE BOOL "Always enable shared library on (ANDROID)" FORCE)
-endif ()
-
-
 # Install directories
 set (INSTALL_BASE_INCLUDE_DIR include)
 set (INSTALL_INCLUDE_DIR ${INSTALL_BASE_INCLUDE_DIR}/vgpu)
@@ -182,8 +172,21 @@ endif ()
 # ThirdParty
 #add_subdirectory(third_party)
 
-# Source
-#add_subdirectory(src)
+# Source lists
+add_library(vgpu
+	# Public Headers
+	include/vgpu.h
+    # Internal Headers
+	src/vgpu_driver.h
+    # Source Files
+	src/vgpu.c
+)
+
+target_include_directories(vgpu PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${INSTALL_BASE_INCLUDE_DIR}>
+)
 
 # Print current build configuration
 message(STATUS "VGPU version ${VGPU_VERSION}")
@@ -192,10 +195,10 @@ message(STATUS "GIT Short ChangeSet: ${VGPU_SHORT_CHANGE_SET}")
 message(STATUS "GIT ChangeSet: ${VGPU_CHANGE_SET}")
 message(STATUS "GIT ChangeSet Date: ${VGPU_CHANGE_SET_DATE}")
 
-if (VGPU_BUILD_SHARED)
-  message(STATUS "  Library         SHARED")
+if (BUILD_SHARED_LIBS)
+    message(STATUS "  Library         SHARED")
 else ()
-  message(STATUS "  Library         STATIC")
+    message(STATUS "  Library         STATIC")
 endif ()
 
 #message(STATUS "  Direct3D12 (ALIMER_RHI_D3D12):  " ${ALIMER_RHI_D3D12})
@@ -209,6 +212,13 @@ install (FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/README.md
 	${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
 	DESTINATION .
+)
+
+install(TARGETS vgpu
+    EXPORT vgpu
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if (NOT ANDROID)
