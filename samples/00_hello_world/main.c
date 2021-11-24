@@ -18,6 +18,27 @@ static void app_glfw_error(int error, const char* description)
     //LOG("Error " << error << ":" << description);
 }
 
+static void vgpu_log_callback(VGPULogType type, const char* msg)
+{
+    switch (type)
+    {
+    case VGPU_LOG_TYPE_INFO:
+        printf("INFO: %s\n", msg);
+        break;
+
+    case VGPU_LOG_TYPE_WARN:
+        printf("WARN: %s\n", msg);
+        break;
+
+    case VGPU_LOG_TYPE_ERROR:
+        printf("ERROR: %s\n", msg);
+        break;
+
+    default:
+        break;
+    }
+}
+
 void draw_frame(void) {
 }
 
@@ -31,7 +52,12 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(kWindowWidth, kWindowHeight, kAppName, NULL, NULL);
 
-    gpu_device = vgpuCreateDevice();
+    VGPU_SetLogCallback(vgpu_log_callback);
+    gpu_device = vgpuCreateDevice(VGPU_VALIDATION_MODE_ENABLED);
+
+    vgpu_buffer_desc buffer_desc;
+    buffer_desc.size = 64;
+    vgpu_buffer buffer = vgpuCreateBuffer(gpu_device, &buffer_desc, NULL);
 
     while (!glfwWindowShouldClose(window))
     {

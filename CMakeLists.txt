@@ -189,7 +189,7 @@ target_include_directories(vgpu PUBLIC
 )
 
 if (VGPU_BUILD_SHARED)
-    target_compile_definitions(vgpu PRIVATE VGPU_SHARED_LIBRARY_BUILD=1)
+    target_compile_definitions(vgpu PRIVATE VGPU_SHARED_LIBRARY=1 VGPU_EXPORTS=1)
 endif()
 
 if(WIN32 AND NOT DISABLE_D3D12)
