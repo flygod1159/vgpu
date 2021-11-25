@@ -18,7 +18,7 @@ static void app_glfw_error(int error, const char* description)
     //LOG("Error " << error << ":" << description);
 }
 
-static void vgpu_log_callback(VGPU_LogType type, const char* msg)
+static void vgpu_log_callback(VGPULogType type, const char* msg)
 {
     switch (type)
     {

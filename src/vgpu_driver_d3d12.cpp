@@ -15,19 +15,15 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#ifdef USING_DIRECTX_HEADERS
-#include <directx/dxgiformat.h>
-#include <directx/d3d12.h>
-#else
-#include <d3d12.h>
-#endif
-
 #include <dxgi1_6.h>
+#include "directx/d3d12.h"
+#define D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
+#include "D3D12MemAlloc.h"
 
 /* Device */
 typedef struct d3d12_renderer
 {
-    vgpu_device_t* parentDevice;
+    VGPUDeviceImpl* parentDevice;
 
     IDXGIFactory4* factory;
 } d3d12_renderer;
@@ -57,14 +53,14 @@ static bool d3d12IsAvailable(void)
     return true;
 }
 
-static VGPUDevice d3d12CreateDevice(VGPU_ValidationMode validationMode)
+static VGPUDevice d3d12CreateDevice(VGPUValidationMode validationMode)
 {
     if (!d3d12IsAvailable())
         return NULL;
 
     VGPU_UNUSED(validationMode);
 
-    VGPUDevice device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device_t));
+    VGPUDevice device = (VGPUDeviceImpl*)VGPU_MALLOC(sizeof(VGPUDeviceImpl));
     ASSIGN_DRIVER(d3d12);
 
     d3d12_renderer* renderer = (d3d12_renderer*)VGPU_MALLOC(sizeof(d3d12_renderer));

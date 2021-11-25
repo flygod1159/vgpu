@@ -66,7 +66,7 @@ static const vgpu_driver* drivers[] = {
     NULL
 };
 
-VGPUDevice vgpuCreateDevice(VGPU_ValidationMode validationMode)
+VGPUDevice vgpuCreateDevice(VGPUValidationMode validationMode)
 {
     for (int i = 0; drivers[i] != NULL; i += 1)
     {

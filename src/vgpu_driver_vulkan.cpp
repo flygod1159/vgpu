@@ -272,7 +272,7 @@ namespace
 /* Device */
 typedef struct vulkan_renderer
 {
-    vgpu_device_t* parentDevice;
+    VGPUDeviceImpl* parentDevice;
 
     bool debugUtils;
     VkInstance instance;
@@ -397,7 +397,7 @@ static bool vulkanIsAvailable(void)
     return true;
 }
 
-static VGPUDevice vulkanCreateDevice(VGPU_ValidationMode validationMode)
+static VGPUDevice vulkanCreateDevice(VGPUValidationMode validationMode)
 {
     if (!vulkanIsAvailable())
     {
@@ -952,7 +952,7 @@ static VGPUDevice vulkanCreateDevice(VGPU_ValidationMode validationMode)
         VK_CHECK(vkCreatePipelineCache(renderer->device, &createInfo, nullptr, &renderer->pipelineCache));
     }
 
-    VGPUDevice device = (vgpu_device_t*)VGPU_MALLOC(sizeof(vgpu_device_t));
+    VGPUDevice device = (VGPUDeviceImpl*)VGPU_MALLOC(sizeof(VGPUDeviceImpl));
     ASSIGN_DRIVER(vulkan);
 
     renderer->parentDevice = device;

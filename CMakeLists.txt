@@ -199,6 +199,7 @@ endif()
 
 if(WIN32 AND NOT DISABLE_D3D12)
     target_compile_definitions(vgpu PRIVATE VGPU_DRIVER_D3D12=1)
+    target_link_libraries(vgpu PRIVATE D3D12MemoryAllocator)
 endif()
 
 if(NOT EMSCRIPTEN)
