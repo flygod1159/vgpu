@@ -5,6 +5,7 @@
 #include "vgpu_driver.h"
 #include "volk.h"
 VGPU_DISABLE_WARNINGS()
+#define VMA_USE_STL_CONTAINERS 0
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include "spirv_reflect.h"
